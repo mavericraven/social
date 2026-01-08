@@ -1,0 +1,114 @@
+Meta Content Scheduler – Full Product Requirements Document (PRD)
+Instagram Reels Automation Agent for Maldives Resorts
+1. Product Overview
+Meta Content Scheduler is an AI-powered automation platform that discovers, evaluates, and schedules high-quality Instagram Reels sourced exclusively from official Maldives resort Instagram accounts. The system posts 5 optimized Reels per day while maintaining Meta compliance, brand safety, and performance consistency.
+2. Goals & Objectives
+• Automate daily Instagram Reels publishing
+• Maintain premium content quality
+• Eliminate manual curation
+• Avoid Meta account penalties
+• Increase organic reach and enquiry intent
+
+3. Target Users (B2C Focused)
+•Primary Users (B2C – Demand Side)
+
+Top international travelers interested in Maldives vacations, especially from:
+
+-	United Kingdom
+-	Canada
+-	China
+-	Russia
+-	Europe (France, Germany, Spain, Bulgaria etc)
+-	Middle East (UAE, Egypt, Qatar, Kuwait, Saudi Arabia)
+
+These users consume aspirational, viral Instagram Reels and are driven by visual storytelling, luxury experiences, and short-form video inspiration.
+
+• Secondary Users (B2C Distribution & Sales)
+
+-	Travel agents selling Maldives holiday packages directly to consumers
+-	Tour operators focused on outbound Maldives travel
+
+• Online Travel Agencies (OTAs) (e.g., AtollDiscovery.com)
+
+These users leverage the platform to consistently publish high-performing resort content that converts interest into enquiries and bookings.
+
+•Supporting Users
+
+-	Resort marketing teams (content source & amplification)
+-	Social media managers handling consumer-facing travel brands
+
+4. Success Metrics (KPIs)
+• 5 reels/day published successfully
+• 0 account warnings or bans
+• +30% organic reach uplift
+• <10 min discovery-to-schedule time
+5. End-to-End User Flow
+1. User logs in
+2. Connects Instagram account
+3. Agent scans official resort handles
+4. Viral scoring applied
+5. Approved reels stored
+6. 5 reels auto-scheduled
+7. Reels published
+8. Performance logged
+6. Agent Architecture
+• Discovery Agent
+• Scoring Agent
+• Compliance Agent
+• Scheduling Agent
+• Publishing Agent
+• Monitoring Agent
+7. Viral Scoring Logic
+• View-to-follower ratio
+• Engagement velocity
+• Recency
+• Visual clarity
+• Audio trend relevance
+Threshold ≥ 70
+8. Content Rules & Compliance
+• Official resort handles only
+• Mandatory credit
+• No watermarks
+• Full audit trail
+9. Scheduling Rules
+• 5 reels/day
+• Time slots: 12PM, 3PM, 6PM, 8PM, 10PM
+• Minimum gap: 90 minutes
+• Timezone aware
+10. Failure Handling
+• Retry logic
+• Auto replacement
+• Duplicate detection
+• Rate-limit backoff
+11. Roles & Permissions
+• Admin
+• Editor
+• Viewer
+• Client
+12. Frontend (Next.js 14)
+• App Router
+• Tailwind CSS + shadcn/ui
+• Dashboard, Calendar, Library, Settings
+• Mobile-first UX
+13. Backend & Tech Stack
+• FastAPI / Node.js
+• PostgreSQL
+• Redis
+• S3-compatible storage
+• Meta Graph API
+14. Security
+• Encrypted credentials
+• OAuth
+• Role-based access
+15. Roadmap
+Phase 1: MVP
+Phase 2: Multi-account
+Phase 3: Optimization & Ads-ready
+16. Risks & Mitigation
+• Meta bans → rate limits
+• Copyright → official handles only
+• Low engagement → viral scoring
+17. Future Enhancements
+• Story auto-generation
+• Reel boosting
+• Facebook Reels cross-posting
