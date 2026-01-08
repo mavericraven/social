@@ -6,7 +6,7 @@ export interface CacheOptions {
 
 export async function getCached<T>(key: string): Promise<T | null> {
   const data = await kv.get(key)
-  return data ? JSON.parse(data) : null
+  return data && typeof data === 'string' ? JSON.parse(data) : null
 }
 
 export async function setCached<T>(
@@ -97,14 +97,14 @@ export async function getCacheStats(pattern: string): Promise<{
 }> {
   const matchedKeys = await keys(pattern)
   let totalSize = 0
-  
+
   for (const key of matchedKeys) {
     const data = await kv.get(key)
-    if (data) {
+    if (data && typeof data === 'string') {
       totalSize += Buffer.byteLength(data, 'utf8')
     }
   }
-  
+
   return {
     totalKeys: matchedKeys.length,
     totalSize,

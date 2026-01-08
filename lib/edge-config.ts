@@ -24,7 +24,7 @@ const defaultConfig: AppConfig = {
 
 export async function getConfig(): Promise<AppConfig> {
   try {
-    const config = await get()
+    const config = await get('appConfig') as Partial<AppConfig>
     return { ...defaultConfig, ...config }
   } catch (error) {
     console.warn('Failed to fetch Edge Config, using defaults:', error)
@@ -54,5 +54,5 @@ export async function getMinReelGapMinutes(): Promise<number> {
 
 export async function getFeatureFlag(flag: string): Promise<boolean> {
   const config = await getConfig()
-  return config.flags?.[flag] || false
+  return (config.flags as any)?.[flag] || false
 }

@@ -32,7 +32,7 @@ export async function dequeueJob(jobType: string): Promise<Job | null> {
 
 export async function getQueueSize(jobType: string): Promise<number> {
   const count = await kv.get(`queue:${jobType}:count`)
-  return parseInt(count || '0')
+  return parseInt((count && typeof count === 'string' ? count : '0'))
 }
 
 export async function peekQueue(jobType: string, count: number = 10): Promise<Job[]> {
@@ -60,14 +60,14 @@ export async function enqueueScheduledJob(
   }
 
   const score = Math.floor(scheduledFor.getTime() / 1000)
-  await kv.zadd(`scheduled:${jobType}`, score, JSON.stringify(job))
+  await (kv.zadd as any)(`scheduled:${jobType}`, score, JSON.stringify(job))
   
   return jobId
 }
 
 export async function getDueJobs(jobType: string): Promise<Job[]> {
   const now = Math.floor(Date.now() / 1000)
-  const jobs = await kv.zrangebyscore(`scheduled:${jobType}`, 0, now)
+  const jobs = await (kv as any).zrangebyscore(`scheduled:${jobType}`, 0, now)
   
   const parsedJobs: Job[] = []
   for (const job of jobs) {
@@ -78,7 +78,7 @@ export async function getDueJobs(jobType: string): Promise<Job[]> {
 }
 
 export async function removeScheduledJob(jobType: string, jobId: string): Promise<void> {
-  const job = await zrange(`scheduled:${jobType}`, 0, -1)
+  const job = await (kv as any).zrange(`scheduled:${jobType}`, 0, -1)
   for (const jobData of job) {
     const parsed = JSON.parse(jobData)
     if (parsed.id === jobId) {

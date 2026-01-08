@@ -35,23 +35,19 @@ export async function GET(request: NextRequest) {
 
     const [successRate, avgPostTime, topResorts, recentActivity] = await Promise.all([
       prisma.publishAttempt.aggregate({
-        where: { instagramAccountId },
+        where: { instagramAccountId, status: 'SUCCESS' },
         _count: { id: true },
-        where: { status: 'SUCCESS' }
       }).then(async (success) => {
         const total = await prisma.publishAttempt.count({ where: { instagramAccountId } })
         return total > 0 ? (success._count.id / total) * 100 : 0
       }),
-      prisma.schedule.aggregate({
+      prisma.schedule.count({
         where: {
           instagramAccountId,
           status: 'PUBLISHED',
           publishedAt: { not: null }
-        },
-        _avg: {
-          publishedAt: true
         }
-      }).then(result => result._avg.publishedAt ? new Date(result._avg.publishedAt).getTime() : 0),
+      }).then(count => count),
       prisma.reel.groupBy({
         by: ['resortId'],
         where: {
@@ -72,7 +68,7 @@ export async function GET(request: NextRequest) {
     const topPerformingResorts = await Promise.all(
       topResorts.map(async (group) => {
         const resort = await prisma.resort.findUnique({
-          where: { id: group.resortId }
+          where: { id: group.resortId! }
         })
         return {
           name: resort?.name || 'Unknown',

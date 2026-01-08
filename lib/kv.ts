@@ -3,16 +3,16 @@ import { kv } from '@vercel/kv'
 export { kv }
 
 export async function set(key: string, value: string, options?: { ex?: number }) {
-  await kv.set(key, value, options)
+  await kv.set(key, value, options as any)
 }
 
 export async function get<T>(key: string): Promise<T | null> {
   const value = await kv.get(key)
-  return value ? JSON.parse(value) : null
+  return value && typeof value === 'string' ? JSON.parse(value) : null
 }
 
 export async function del(key: string | string[]) {
-  await kv.del(key)
+  await kv.del(key as any)
 }
 
 export async function incr(key: string): Promise<number> {

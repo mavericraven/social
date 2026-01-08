@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { DayPicker } from 'react-day-picker'
+import { DayPicker, DateRange } from 'react-day-picker'
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 import 'react-day-picker/dist/style.css'
 
@@ -67,10 +67,11 @@ export default function CalendarPage() {
               </div>
 
               <DayPicker
+                mode="single"
                 month={currentMonth}
                 onMonthChange={setCurrentMonth}
                 selected={selectedDate}
-                onSelect={setSelectedDate}
+                onSelect={(date: Date | undefined) => { if (date) setSelectedDate(date) }}
                 modifiers={{
                   hasSchedule: (date) => hasSchedule(date),
                 }}

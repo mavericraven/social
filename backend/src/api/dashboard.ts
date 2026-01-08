@@ -116,7 +116,7 @@ export async function dashboardRoutes(fastify: FastifyInstance) {
         status: ReelStatus.PUBLISHED,
       },
       select: {
-        publishedAt: true,
+        postedAt: true,
         views: true,
         likes: true,
         comments: true,
@@ -128,7 +128,7 @@ export async function dashboardRoutes(fastify: FastifyInstance) {
           },
         },
       },
-      orderBy: { publishedAt: 'desc' },
+      orderBy: { postedAt: 'desc' },
       take: 30,
     })
 

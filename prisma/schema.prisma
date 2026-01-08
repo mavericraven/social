@@ -75,6 +75,7 @@ model InstagramAccount {
    publishAttempts   PublishAttempt[]
    agentRunLogs      AgentRunLog[]
    settings          Settings?
+   rateLimits        RateLimit[]
 
    createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
@@ -239,18 +240,19 @@ model Settings {
 }
 
 model RateLimit {
-  id                String       @id @default(cuid())
+  id                String            @id @default(cuid())
 
   endpoint          String
   instagramAccountId String
+  instagramAccount  InstagramAccount  @relation(fields: [instagramAccountId], references: [id])
 
-  requestCount      Int          @default(0)
-  windowStart       DateTime     @default(now())
+  requestCount      Int               @default(0)
+  windowStart       DateTime          @default(now())
   windowEnd         DateTime
 
   resetAt           DateTime?
-  isLimited         Boolean      @default(false)
+  isLimited         Boolean           @default(false)
 
-  @@index([endpoint, instagramAccountId])
+  @@unique([endpoint, instagramAccountId])
   @@index([windowEnd])
 }

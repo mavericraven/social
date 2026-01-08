@@ -1,6 +1,8 @@
 import { BaseAgent, AgentInput, AgentOutput } from './BaseAgent'
 import { prisma } from '../lib/prisma'
 import { ReelStatus, PublishStatus, AgentStatus } from '@prisma/client'
+import { PublishingAgent } from './PublishingAgent'
+import { SchedulingAgent } from './SchedulingAgent'
 
 export class MonitoringAgent extends BaseAgent {
   constructor() {

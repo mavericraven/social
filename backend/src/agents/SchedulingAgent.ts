@@ -20,12 +20,12 @@ export class SchedulingAgent extends BaseAgent {
       where: { instagramAccountId },
     })
 
-    const timeSlots = settings?.postingSchedule || DEFAULT_TIME_SLOTS
+    const timeSlots = (settings?.postingSchedule as string[]) || DEFAULT_TIME_SLOTS
     const dailyReelCount = settings?.dailyReelCount || 5
     const minReelGapMinutes = settings?.minReelGapMinutes || 90
 
-    const targetDateObj = targetDate 
-      ? new Date(targetDate) 
+    const targetDateObj = targetDate
+      ? new Date(targetDate)
       : this.getNextBusinessDay()
 
     const scheduledForDay = await this.getAvailableSlots(

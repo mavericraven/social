@@ -12,16 +12,17 @@ import { registerRoutes } from './api/routes'
 import { startAgents } from './agents/orchestrator'
 import { setupQueueProcessor } from './lib/queue'
 
-const logger = pino(
-  pretty({
-    colorize: true,
-    translateTime: 'HH:MM:ss Z',
-    ignore: 'pid,hostname',
-  })
-)
-
 const fastify = Fastify({
-  logger,
+  logger: {
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'HH:MM:ss Z',
+        ignore: 'pid,hostname',
+      },
+    },
+  },
 })
 
 async function buildServer() {
@@ -79,22 +80,22 @@ async function buildServer() {
   return fastify
 }
 
-async function start() {
+  async function start() {
   try {
     const server = await buildServer()
-    
-    await server.listen({ 
+
+    await server.listen({
       port: parseInt(process.env.PORT || '3001'),
-      host: '0.0.0.0' 
+      host: '0.0.0.0'
     })
 
-    logger.info('Server listening on port 3001')
+    server.log.info('Server listening on port 3001')
 
     await setupQueueProcessor()
     await startAgents()
 
   } catch (err) {
-    logger.error(err)
+    fastify.log.error(err)
     process.exit(1)
   }
 }

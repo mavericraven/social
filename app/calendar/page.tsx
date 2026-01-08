@@ -1,39 +1,54 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { DayPicker } from 'react-day-picker'
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
-import 'react-day-picker/dist/style.css'
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { DayPicker } from "react-day-picker";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import "react-day-picker/dist/style.css";
 
 export default function CalendarPage() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
   const { data: schedules } = useQuery({
-    queryKey: ['schedule', 'calendar', currentMonth.getMonth() + 1, currentMonth.getFullYear()],
+    queryKey: [
+      "schedule",
+      "calendar",
+      currentMonth.getMonth() + 1,
+      currentMonth.getFullYear(),
+    ],
     queryFn: async () => {
-      const token = localStorage.getItem('auth_token')
-      const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
-      const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0)
+      const token = localStorage.getItem("auth_token");
+      const startOfMonth = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        1,
+      );
+      const endOfMonth = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + 1,
+        0,
+      );
       const response = await fetch(
         `/api/schedule?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      if (!response.ok) throw new Error('Failed to fetch calendar data')
-      return response.json()
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (!response.ok) throw new Error("Failed to fetch calendar data");
+      return response.json();
     },
-  })
+  });
 
   const getScheduledForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
-    return schedules?.filter((s: any) => s.scheduledFor?.startsWith(dateStr)) || []
-  }
+    const dateStr = date.toISOString().split("T")[0];
+    return (
+      schedules?.filter((s: any) => s.scheduledFor?.startsWith(dateStr)) || []
+    );
+  };
 
   const hasSchedule = (date: Date) => {
-    const scheduled = getScheduledForDate(date)
-    return scheduled.length > 0
-  }
+    const scheduled = getScheduledForDate(date);
+    return scheduled.length > 0;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50">
@@ -50,16 +65,33 @@ export default function CalendarPage() {
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <button
-                  onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
+                  onClick={() =>
+                    setCurrentMonth(
+                      new Date(
+                        currentMonth.getFullYear(),
+                        currentMonth.getMonth() - 1,
+                      ),
+                    )
+                  }
                   className="p-2 hover:bg-gray-100 rounded-lg transition"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <h2 className="text-xl font-semibold">
-                  {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  {currentMonth.toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
                 </h2>
                 <button
-                  onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
+                  onClick={() =>
+                    setCurrentMonth(
+                      new Date(
+                        currentMonth.getFullYear(),
+                        currentMonth.getMonth() + 1,
+                      ),
+                    )
+                  }
                   className="p-2 hover:bg-gray-100 rounded-lg transition"
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -70,14 +102,16 @@ export default function CalendarPage() {
                 month={currentMonth}
                 onMonthChange={setCurrentMonth}
                 selected={selectedDate}
-                onSelect={setSelectedDate}
+                onSelect={(date: Date | undefined) =>
+                  date && setSelectedDate(date)
+                }
                 modifiers={{
                   hasSchedule: (date) => hasSchedule(date),
                 }}
                 modifiersStyles={{
                   hasSchedule: {
-                    backgroundColor: '#dbeafe',
-                    fontWeight: 'bold',
+                    backgroundColor: "#dbeafe",
+                    fontWeight: "bold",
                   },
                 }}
                 className="rdp"
@@ -88,10 +122,10 @@ export default function CalendarPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-lg p-6 sticky top-8">
               <h3 className="text-lg font-semibold mb-4">
-                {selectedDate.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'long', 
-                  day: 'numeric' 
+                {selectedDate.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
                 })}
               </h3>
 
@@ -103,46 +137,51 @@ export default function CalendarPage() {
               ) : (
                 <div className="space-y-4">
                   {getScheduledForDate(selectedDate).map((schedule: any) => (
-                     <div
-                       key={schedule.id}
-                       className="border rounded-lg overflow-hidden hover:shadow-md transition"
-                     >
-                       <img
-                         src={schedule.reel.thumbnailUrl}
-                         alt={schedule.reel.resort?.name}
-                         className="w-full h-32 object-cover"
-                       />
-                       <div className="p-4">
-                         <div className="flex items-center justify-between mb-2">
-                           <span className="text-sm font-medium text-gray-900">
-                             {new Date(schedule.scheduledFor).toLocaleTimeString('en-US', {
-                               hour: '2-digit',
-                               minute: '2-digit'
-                             })}
-                           </span>
-                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                             schedule.status === 'PUBLISHED'
-                               ? 'bg-green-100 text-green-800'
-                               : schedule.status === 'FAILED'
-                               ? 'bg-red-100 text-red-800'
-                               : 'bg-blue-100 text-blue-800'
-                           }`}>
-                             {schedule.status}
-                           </span>
-                         </div>
-                         <p className="text-sm text-gray-600 font-medium">
-                           {schedule.reel.resort?.name}
-                         </p>
-                         <div className="flex items-center gap-2 mt-2">
-                           <span className="px-2 py-1 bg-blue-600 text-white rounded-full text-xs font-bold">
-                             {schedule.reel.viralScore}%
-                           </span>
-                           <span className="text-xs text-gray-500">
-                             Viral Score
-                           </span>
-                         </div>
-                       </div>
-                     </div>
+                    <div
+                      key={schedule.id}
+                      className="border rounded-lg overflow-hidden hover:shadow-md transition"
+                    >
+                      <img
+                        src={schedule.reel.thumbnailUrl}
+                        alt={schedule.reel.resort?.name}
+                        className="w-full h-32 object-cover"
+                      />
+                      <div className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-900">
+                            {new Date(schedule.scheduledFor).toLocaleTimeString(
+                              "en-US",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </span>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              schedule.status === "PUBLISHED"
+                                ? "bg-green-100 text-green-800"
+                                : schedule.status === "FAILED"
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
+                            {schedule.status}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 font-medium">
+                          {schedule.reel.resort?.name}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="px-2 py-1 bg-blue-600 text-white rounded-full text-xs font-bold">
+                            {schedule.reel.viralScore}%
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Viral Score
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -151,5 +190,5 @@ export default function CalendarPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
