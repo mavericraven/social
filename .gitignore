@@ -1,0 +1,89 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+prisma/migrations/*_rollback.sql
+
+# Redis
+dump.rdb
+
+# Temp files
+tmp/
+temp/
+*.tmp
+TODO.md
+
+# Uploads
+uploads/
+storage/
+media/
+
+# Certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# Secrets
+secrets/
+credentials/
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+
+# Misc
+.cache/
+.turbo/
+.vercel/
+.netlify/
+
+# Docker
+docker-compose.override.yml
+
+# CI/CD
+.github/workflows/*.local.yml
+
+.vercel
+.env*.local

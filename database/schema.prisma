@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+  CLIENT
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  WARNING
+}
+
+enum ReelStatus {
+  DISCOVERED
+  SCORING
+  APPROVED
+  REJECTED
+  SCHEDULED
+  PUBLISHED
+  FAILED
+  DELETED
+}
+
+enum AgentStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+  RETRYING
+}
+
+enum PublishStatus {
+  QUEUED
+  PROCESSING
+  SUCCESS
+  FAILED
+  RETRYING
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String
+  role            UserRole @default(CLIENT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  instagramAccounts InstagramAccount[]
+}
+
+model InstagramAccount {
+  id                String         @id @default(cuid())
+  userId            String
+  user              User           @relation(fields: [userId], references: [id])
+  
+  metaAccountId     String         @unique
+  metaUsername      String
+  accessToken       String
+  tokenExpiresAt    DateTime
+  status            AccountStatus  @default(ACTIVE)
+  lastSyncAt        DateTime?
+  
+  reels             Reel[]
+  schedules         Schedule[]
+  publishAttempts   PublishAttempt[]
+  agentRunLogs      AgentRunLog[]
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([userId])
+  @@index([metaAccountId])
+}
+
+model Resort {
+  id                String   @id @default(cuid())
+  name              String
+  instagramHandle    String   @unique
+  officialAccountId  String?
+  isActive          Boolean  @default(true)
+  region            String?
+  
+  reels             Reel[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([instagramHandle])
+}
+
+model Reel {
+  id                String      @id @default(cuid())
+  
+  metaId            String      @unique
+  instagramAccountId String
+  instagramAccount  InstagramAccount @relation(fields: [instagramAccountId], references: [id])
+  
+  resortId          String?
+  resort            Resort?     @relation(fields: [resortId], references: [id])
+  
+  mediaUrl          String
+  thumbnailUrl      String
+  caption           String?
+  
+  views             Int         @default(0)
+  likes             Int         @default(0)
+  comments          Int         @default(0)
+  shares            Int         @default(0)
+  
+  followerCount     Int         @default(0)
+  
+  viralScore        Int         @default(0)
+  viewToFollowRatio Float       @default(0)
+  engagementRate    Float       @default(0)
+  
+  isFromOfficial    Boolean     @default(true)
+  hasWatermark      Boolean     @default(false)
+  creatorCredited   Boolean     @default(true)
+  
+  discoveredAt      DateTime    @default(now())
+  postedAt          DateTime
+  status            ReelStatus  @default(DISCOVERED)
+  
+  schedules         Schedule[]
+  scoreDetails      Json?
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([instagramAccountId])
+  @@index([resortId])
+  @@index([status])
+  @@index([viralScore])
+  @@index([discoveredAt])
+}
+
+model Schedule {
+  id                String      @id @default(cuid())
+  
+  reelId            String
+  reel              Reel        @relation(fields: [reelId], references: [id])
+  
+  instagramAccountId String
+  instagramAccount  InstagramAccount @relation(fields: [instagramAccountId], references: [id])
+  
+  scheduledFor      DateTime
+  publishedAt       DateTime?
+  status            ReelStatus  @default(SCHEDULED)
+  
+  publishAttempts   PublishAttempt[]
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([instagramAccountId])
+  @@index([scheduledFor])
+  @@index([status])
+}
+
+model AgentRunLog {
+  id                String      @id @default(cuid())
+  
+  agentType         String
+  status            AgentStatus
+  
+  instagramAccountId String?
+  instagramAccount  InstagramAccount? @relation(fields: [instagramAccountId], references: [id])
+  
+  input             Json?
+  output            Json?
+  error             String?
+  
+  startedAt         DateTime    @default(now())
+  completedAt       DateTime?
+  durationMs        Int?
+  
+  retryCount        Int         @default(0)
+  maxRetries        Int         @default(3)
+  
+  @@index([agentType])
+  @@index([status])
+  @@index([startedAt])
+}
+
+model PublishAttempt {
+  id                String       @id @default(cuid())
+  
+  scheduleId        String
+  schedule          Schedule     @relation(fields: [scheduleId], references: [id])
+  
+  instagramAccountId String
+  instagramAccount  InstagramAccount @relation(fields: [instagramAccountId], references: [id])
+  
+  status            PublishStatus @default(QUEUED)
+  
+  mediaUploaded     Boolean      @default(false)
+  containerId       String?
+  mediaId           String?
+  
+  error             String?
+  errorDetails      Json?
+  
+  attemptedAt       DateTime     @default(now())
+  completedAt       DateTime?
+  
+  retryCount        Int          @default(0)
+  nextRetryAt       DateTime?
+  
+  @@index([scheduleId])
+  @@index([status])
+  @@index([attemptedAt])
+}
+
+model Settings {
+  id                String       @id @default(cuid())
+  
+  instagramAccountId String       @unique
+  instagramAccount  InstagramAccount @relation(fields: [instagramAccountId], references: [id])
+  
+  postingSchedule   Json
+  captionTemplate   String?
+  dailyReelCount    Int          @default(5)
+  minReelGapMinutes Int          @default(90)
+  viralScoreThreshold Int        @default(70)
+  
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+model RateLimit {
+  id                String       @id @default(cuid())
+  
+  endpoint          String
+  instagramAccountId String
+  
+  requestCount      Int          @default(0)
+  windowStart       DateTime     @default(now())
+  windowEnd         DateTime
+  
+  resetAt           DateTime?
+  isLimited         Boolean      @default(false)
+  
+  @@index([endpoint, instagramAccountId])
+  @@index([windowEnd])
+}
